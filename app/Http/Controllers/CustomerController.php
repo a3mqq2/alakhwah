@@ -24,7 +24,7 @@ class CustomerController extends Controller
         }
 
         if ($request->bank_number) {
-            $query->where('bank_number', request('bank_number'));
+            $query->where('bank_number', 'like' , '%' . request('bank_number') . '%');
         }
 
 
