@@ -61,7 +61,7 @@ class StatementController extends Controller
                 $index = $index+1;
                 $amount = $contract_data->amount - 5;
                 $total_price += $amount;
-                $customer = Customer::where('bank_number', 'like' , $contract_data->bank_number)->first();
+                $customer = Customer::where('bank_number', $contract_data->bank_number)->first();
 
                 if(!$customer) {
                     $errors[] = "لم يتم العثور على رقم الحساب في الصف رقم " . $index;
