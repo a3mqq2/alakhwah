@@ -20,14 +20,12 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::middleware('auth:sanctum')->group(function() {
-    Route::get('/statements/init', [ReportController::class, 'init']);
-    Route::get('/payments/init', [PaymentController::class, 'init']);
-    Route::post('/payments/store', [PaymentController::class, 'store']);
-    Route::get('/statements/show', [ReportController::class, 'show_api']);
-    Route::get('/customers/{bank}', [CustomerController::class, 'get_customers']);
-    Route::get('/contracts/{customer}', [CustomerController::class, 'get_contracts']);
-    Route::get('/state/init', [StatementController::class, 'init']);
-    Route::post('/state/store', [StatementController::class, 'store']);
-});
 
+Route::post('/state/store', [StatementController::class, 'store']);
+Route::get('/statements/init', [ReportController::class, 'init']);
+Route::get('/payments/init', [PaymentController::class, 'init']);
+Route::post('/payments/store', [PaymentController::class, 'store']);
+Route::get('/statements/show', [ReportController::class, 'show_api']);
+Route::get('/customers/{bank}', [CustomerController::class, 'get_customers']);
+Route::get('/contracts/{customer}', [CustomerController::class, 'get_contracts']);
+Route::get('/state/init', [StatementController::class, 'init']);
