@@ -162,27 +162,30 @@ class StatementController extends Controller
 
             foreach ($contractsData[0] as $index => $contract_data) {
                 $index = $index + 1;
-
+            
                 // Filter out rows where bank_number or amount is missing
                 if (empty($contract_data['bank_number']) || empty($contract_data['amount'])) {
                     continue; // Skip this iteration and move to the next row
                 }
-
-                if($index==7) {
-                    dd($contract_data['amount'], floatval($contract_data['amount']));
+            
+                // Remove any commas from the amount before converting to float
+                $cleaned_amount = str_replace(',', '', $contract_data['amount']);
+                
+                if($index == 7) {
+                    dd($contract_data['amount'], floatval($cleaned_amount));
                 }
-
-                $amount = floatval($contract_data['amount']) - 5;
+            
+                $amount = floatval($cleaned_amount) - 5;
                 $total_price += $amount;
-
+            
                 $customer = Customer::where('bank_number', 'like', '%' . $contract_data['bank_number'] . '%')->first();
-
+            
                 if (!$customer) {
                     $errors->add('contract_'.$index, "لم يتم العثور على رقم الحساب في الصف رقم " . $index . ' رقم الحساب :  ' . $contract_data['bank_number'] . ' القيمة :  ' . $contract_data['amount']);
                 } else {
                     $targetMonth = Carbon::parse($request->month)->startOfMonth();
                     $contracts = $customer->contracts->whereIn('monthly_deduction', [$amount, $contract_data['amount']]);
-
+            
                     if (!$contracts->count()) {
                         $errors->add('contract_'.$index, "لم يتم العثور على العقد المربوط بالحساب في الصف رقم " . $index);
                     } else {
@@ -191,17 +194,17 @@ class StatementController extends Controller
                                 $q->where('month', Carbon::parse(request('month')));
                             })->get();
                     }
-
+            
                     if ($contracts->count()) {
                         $contract = $contracts->first();
-
+            
                         $checkPayment = $contract->payments()->whereYear('month', Carbon::parse($request->month))->whereMonth('month', Carbon::parse($request->month))->get();
                         if ($checkPayment->count()) {
                             $errors->add('contract_'.$index, "تم الدفع المسبق للعقد التابع للصف رقم : " . $index);
                         } else {
                             $contract->decrement('due', $contract->monthly_deduction);
                             $contract->increment('paid', $contract->monthly_deduction);
-
+            
                             $payment = new Payment();
                             $payment->contract_id = $contract->id;
                             $payment->customer_id = $contract->customer_id;
@@ -211,12 +214,13 @@ class StatementController extends Controller
                             $payment->amount = $contract->monthly_deduction;
                             $payment->statement_id = $statement->id;
                             $payment->save();
-
+            
                             $contract->save();
                         }
                     }
                 }
             }
+            
 
             $statement->update(['total_price' => $total_price]);
             DB::commit();
