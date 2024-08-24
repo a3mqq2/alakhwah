@@ -159,13 +159,17 @@ class StatementController extends Controller
             $total_price = 0;
 
             $contractsData = Excel::toArray(new ContractsImport, $request->file('contracts_file'));
-            dd($contractsData);
-            foreach($contractsData[0] as $index => $contract_data) {
+
+            foreach ($contractsData[0] as $index => $contract_data) {
                 $index = $index + 1;
+
+                // Filter out rows where bank_number or amount is missing
+                if (empty($contract_data['bank_number']) || empty($contract_data['amount'])) {
+                    continue; // Skip this iteration and move to the next row
+                }
+
                 $amount = $contract_data['amount'] - 5;
                 $total_price += $amount;
-                
-             
 
                 $customer = Customer::where('bank_number', 'like', '%' . $contract_data['bank_number'] . '%')->first();
 
@@ -223,6 +227,7 @@ class StatementController extends Controller
             return redirect()->back()->withErrors(['error' => 'حدث خطأ أثناء الاستيراد: ' . $e->getMessage()]);
         }
     }
+
 
     /**
      * Show the form for editing the specified resource.
