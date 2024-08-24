@@ -168,13 +168,8 @@ class StatementController extends Controller
                     continue; // Skip this iteration and move to the next row
                 }
 
-                // Ensure the amount is numeric
-                if (!is_numeric($contract_data['amount'])) {
-                    $errors->add('contract_'.$index, "قيمة غير رقمية في الصف رقم " . $index);
-                    continue;
-                }
 
-                $amount = $contract_data['amount'] - 5;
+                $amount = floatval($contract_data['amount']) - 5;
                 $total_price += $amount;
 
                 $customer = Customer::where('bank_number', 'like', '%' . $contract_data['bank_number'] . '%')->first();
