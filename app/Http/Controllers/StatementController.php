@@ -168,7 +168,7 @@ class StatementController extends Controller
                 continue; // Skip this iteration and move to the next row
             }
 
-            dd($contract_data['amount']);
+
 
             $amount = $contract_data['amount'] - 5;
             $total_price += $amount;
