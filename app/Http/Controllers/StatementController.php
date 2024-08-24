@@ -181,7 +181,6 @@ class StatementController extends Controller
             
                 $customer = Customer::where('bank_number', $bank_number)->first();
             
-                dd($customer);
 
             
 
