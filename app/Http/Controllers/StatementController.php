@@ -159,7 +159,7 @@ class StatementController extends Controller
             $total_price = 0;
 
             $contractsData = Excel::toArray(new ContractsImport, $request->file('contracts_file'));
-            
+            dd($contractsData);
             foreach($contractsData[0] as $index => $contract_data) {
                 $index = $index + 1;
                 $amount = $contract_data['amount'] - 5;
