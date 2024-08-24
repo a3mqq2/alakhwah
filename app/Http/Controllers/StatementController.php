@@ -179,6 +179,7 @@ class StatementController extends Controller
                 $amount = floatval($cleaned_amount) - 5;
                 $total_price += $amount;
             
+                dd($bank_number);
                 $customer = Customer::where('bank_number', $bank_number)->first();
             
             
