@@ -149,6 +149,12 @@
                                 <span class="ml-1 item-text">إضافة اقساط جديده</span>
                             </a>
                         </li>
+                          <li class="nav-item">
+                            <a class="nav-link pl-3" href="{{ route('contracts.import_view') }}">
+                                <span class="ml-1 item-text">إضافة اقساط جديده - اكسيل</span>
+                            </a>
+                        </li>
+
                         <li class="nav-item">
                           <a class="nav-link pl-3" href="{{ route('statements.index') }}">
                               <span class="ml-1 item-text"> عرض جميع  الاقساط   </span>

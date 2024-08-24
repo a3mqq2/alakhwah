@@ -42,10 +42,13 @@ Route::middleware(['auth'])->group(function() {
     Route::get('/users/{user}/active', [UsersController::class, 'active'])->name('users.active');
     Route::resource('/users', UsersController::class);
     Route::get('/contracts/{contract}/print', [ContractController::class, 'print'])->name('contracts.print');
+    Route::view('/contracts/import', 'contracts.import')->name('contracts.import_view');
     Route::resource('/contracts', ContractController::class);
     Route::resource('/banks', BankController::class);
     Route::resource('/customers', CustomerController::class);
     Route::resource('/payments', PaymentController::class);
+    
+    Route::post('/contracts/import_excel', [StatementController::class, 'store_excel'])->name('contracts.store_excel');
     Route::get('/reports/rating', [ReportController::class, 'rating'])->name('reports.rating');
     Route::get('/reports/index', [ReportController::class, 'index'])->name('reports.index');
     Route::get('/reports/payments', [ReportController::class, 'payments'])->name('reports.payments');

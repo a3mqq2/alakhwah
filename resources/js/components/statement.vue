@@ -133,8 +133,39 @@
     },
   
     mounted() {
-      this.init();
-    },
+    this.contracts = [
+        { bank_number: "0950110136553014", amount: 380.000 },
+        { bank_number: "0950110135761102", amount: 175.000 },
+        { bank_number: "0950110135693445", amount: 130.000 },
+        { bank_number: "0950110135965503", amount: 585.000 },
+        { bank_number: "0950110136203140", amount: 155.000 },
+        { bank_number: "1240100112396304", amount: 110.000 },
+        { bank_number: "1350101130738026", amount: 165.000 },
+        { bank_number: "1355240240370008", amount: 170.000 },
+        { bank_number: "1355240240350106", amount: 205.000 },
+        { bank_number: "1355240240350909", amount: 205.000 },
+        { bank_number: "1355240240351900", amount: 255.000 },
+        { bank_number: "1350111652820016", amount: 170.000 },
+        { bank_number: "1355240240231007", amount: 205.000 },
+        { bank_number: "0540100113922101", amount: 255.000 },
+        { bank_number: "0950110058953502", amount: 180.000 },
+        { bank_number: "0950110096270634", amount: 135.000 },
+        { bank_number: "0732190000070255", amount: 195.000 },
+        { bank_number: "0730110239539901", amount: 075.000 },
+        { bank_number: "0680100110002950", amount: 070.000 },
+        { bank_number: "1355240240350005", amount: 125.000 },
+        { bank_number: "1355240241010002", amount: 145.000 },
+        { bank_number: "0542100000098936", amount: 085.000 },
+        { bank_number: "0680100110002950", amount: 185.000 },
+        { bank_number: "1355240234160014", amount: 265.000 },
+        { bank_number: "0730110081004172", amount: 150.000 },
+        { bank_number: "0680100110003843", amount: 135.000 },
+        { bank_number: "1355240231340018", amount: 095.000 },
+        { bank_number: "0950101000099901", amount: 095.000 },
+    ];
+    this.init();
+  },
+
   };
   </script>
   
