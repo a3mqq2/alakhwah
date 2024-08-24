@@ -165,6 +165,10 @@ class StatementController extends Controller
                 $amount = $contract_data['amount'] - 5;
                 $total_price += $amount;
                 
+                if($index == 29) {
+                    dd($contract_data);
+                }
+
                 $customer = Customer::where('bank_number', 'like', '%' . $contract_data['bank_number'] . '%')->first();
 
                 if (!$customer) {
