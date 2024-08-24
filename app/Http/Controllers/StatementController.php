@@ -168,6 +168,9 @@ class StatementController extends Controller
                     continue; // Skip this iteration and move to the next row
                 }
 
+                if($index==7) {
+                    dd($contract_data);
+                }
 
                 $amount = floatval($contract_data['amount']) - 5;
                 $total_price += $amount;
