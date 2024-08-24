@@ -167,9 +167,11 @@ class StatementController extends Controller
                 if (empty($contract_data['bank_number']) || empty($contract_data['amount'])) {
                     continue; // Skip this iteration and move to the next row
                 }
+
             
                 // Remove any commas from the amount before converting to float
                 $cleaned_amount = str_replace(',', '', $contract_data['amount']);
+                
                 
             
                 $amount = floatval($cleaned_amount) - 5;
@@ -190,6 +192,8 @@ class StatementController extends Controller
                             ->whereDoesntHave('payments', function($q) {
                                 $q->where('month', Carbon::parse(request('month')));
                             })->get();
+
+                            dd($contracts);
                     }
             
                     if ($contracts->count()) {
