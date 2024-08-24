@@ -190,7 +190,7 @@ class StatementController extends Controller
                     $contracts = $customer->contracts->whereIn('monthly_deduction', [$amount, $contract_data['amount']]);
             
                     if (!$contracts->count()) {
-                        $errors->add('contract_'.$index, "لم يتم العثور على العقد المربوط بالحساب في الصف رقم " . $index);
+                        $errors->add('contract_'.$index, "لم يتم العثور على العقد المربوط بالحساب في الصف رقم " . $index . 'رقم الحساب : ' . $contract_data['bank_number'] . ' القيمة  : ' . $contract_data['amount']);
                     } else {
                         $contracts = $customer->contracts()->whereIn('monthly_deduction', [$amount, $contract_data['amount']])
                             ->whereDoesntHave('payments', function($q) {
