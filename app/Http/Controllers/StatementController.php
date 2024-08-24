@@ -177,7 +177,7 @@ class StatementController extends Controller
                 $amount = floatval($cleaned_amount) - 5;
                 $total_price += $amount;
             
-                $customer = Customer::where('bank_number', 'like', '%' . $contract_data['bank_number'] . '%')->first();
+                $customer = Customer::where('bank_number', $contract_data['bank_number'])->first();
             
                 if (!$customer) {
                     $errors->add('contract_'.$index, "لم يتم العثور على رقم الحساب في الصف رقم " . $index . ' رقم الحساب :  ' . $contract_data['bank_number'] . ' القيمة :  ' . $contract_data['amount']);
@@ -193,7 +193,6 @@ class StatementController extends Controller
                                 $q->where('month', Carbon::parse(request('month')));
                             })->get();
 
-                            dd($customer->contracts);
                     }
             
                     if ($contracts->count()) {
