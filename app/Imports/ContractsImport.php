@@ -4,19 +4,26 @@ namespace App\Imports;
 
 use Maatwebsite\Excel\Concerns\ToModel;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
+use Maatwebsite\Excel\Concerns\WithMappedCells;
+use Illuminate\Support\Collection;
+use Maatwebsite\Excel\Concerns\ToCollection;
 
-class ContractsImport implements ToModel, WithHeadingRow
+class ContractsImport implements ToCollection, WithHeadingRow
 {
-    /**
-     * @param array $row
-     *
-     * @return \Illuminate\Database\Eloquent\Model|null
-     */
-    public function model(array $row)
+    public function collection(Collection $rows)
     {
-        return [
-            'bank_number' => $row['bank_number'],
-            'amount' => $row['amount'],
-        ];
+        foreach ($rows as $row) {
+            // Process each row, treating 'bank_number' as a string
+            $contractData = [
+                'amount' => $row['amount'],
+                'bank_number' => (string)$row['bank_number'], // Cast bank_number to string
+            ];
+            // Your logic here
+        }
+    }
+
+    public function headingRow(): int
+    {
+        return 1; // Adjust based on your Excel structure
     }
 }
