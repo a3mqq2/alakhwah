@@ -193,7 +193,7 @@ class StatementController extends Controller
                                 $q->where('month', Carbon::parse(request('month')));
                             })->get();
 
-                            dd($contracts);
+                            dd($customer->contracts);
                     }
             
                     if ($contracts->count()) {
