@@ -61,7 +61,6 @@ class StatementController extends Controller
             $statement->save();
             $total_price = 0;
 
-            dd(json_decode($request->contracts));
             foreach(json_decode($request->contracts) as $index=>$contract_data) {
                 $index = $index+1;
                 $amount = $contract_data->amount - 5;
@@ -170,6 +169,7 @@ class StatementController extends Controller
                     continue; // Skip this iteration and move to the next row
                 }
     
+                
                 // Pad the bank_number with leading zeros if it's less than 15 digits
                 $bank_number = str_pad($contract_data['bank_number'], 15, '0', STR_PAD_LEFT);
             
@@ -181,6 +181,10 @@ class StatementController extends Controller
             
                 $customer = Customer::where('bank_number', $bank_number)->first();
             
+                if($index==11) {
+                    dd($customer->contracts);
+                }
+
                 if (!$customer) {
                     $errors->add('contract_'.$index, "لم يتم العثور على رقم الحساب في الصف رقم " . $index . ' رقم الحساب :  ' . $bank_number . ' القيمة :  ' . $contract_data['amount']);
                 } else {
