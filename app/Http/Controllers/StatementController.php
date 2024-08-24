@@ -182,7 +182,7 @@ class StatementController extends Controller
                 $customer = Customer::where('bank_number', $bank_number)->first();
             
                 if($index==11) {
-                    dd($customer->contracts);
+                    dd($customer->contracts, $customer->bank_number);
                 }
 
                 if (!$customer) {
