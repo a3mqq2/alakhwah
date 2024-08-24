@@ -181,9 +181,7 @@ class StatementController extends Controller
             
                 $customer = Customer::where('bank_number', $bank_number)->first();
             
-                if($index==11) {
-                    dd($customer->contracts, $customer->bank_number);
-                }
+            
 
                 if (!$customer) {
                     $errors->add('contract_'.$index, "لم يتم العثور على رقم الحساب في الصف رقم " . $index . ' رقم الحساب :  ' . $bank_number . ' القيمة :  ' . $contract_data['amount']);
