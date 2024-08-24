@@ -146,7 +146,7 @@ class StatementController extends Controller
             'bank_id.required' => 'يجب اختيار المصرف.',
             'month.required' => 'يجب اختيار الشهر.'
         ]);
-
+    
         try {
             DB::beginTransaction();
             $errors = new MessageBag();
@@ -157,9 +157,9 @@ class StatementController extends Controller
             $statement->bank_id = $request->bank_id;
             $statement->save();
             $total_price = 0;
-
+    
             $contractsData = Excel::toArray(new ContractsImport, $request->file('contracts_file'));
-
+    
             foreach ($contractsData[0] as $index => $contract_data) {
                 $index = $index + 1;
             
@@ -167,20 +167,20 @@ class StatementController extends Controller
                 if (empty($contract_data['bank_number']) || empty($contract_data['amount'])) {
                     continue; // Skip this iteration and move to the next row
                 }
-
+    
+                // Pad the bank_number with leading zeros if it's less than 15 digits
+                $bank_number = str_pad($contract_data['bank_number'], 15, '0', STR_PAD_LEFT);
             
                 // Remove any commas from the amount before converting to float
                 $cleaned_amount = str_replace(',', '', $contract_data['amount']);
-                
-                
             
                 $amount = floatval($cleaned_amount) - 5;
                 $total_price += $amount;
             
-                $customer = Customer::where('bank_number', $contract_data['bank_number'])->first();
+                $customer = Customer::where('bank_number', $bank_number)->first();
             
                 if (!$customer) {
-                    $errors->add('contract_'.$index, "لم يتم العثور على رقم الحساب في الصف رقم " . $index . ' رقم الحساب :  ' . $contract_data['bank_number'] . ' القيمة :  ' . $contract_data['amount']);
+                    $errors->add('contract_'.$index, "لم يتم العثور على رقم الحساب في الصف رقم " . $index . ' رقم الحساب :  ' . $bank_number . ' القيمة :  ' . $contract_data['amount']);
                 } else {
                     $targetMonth = Carbon::parse($request->month)->startOfMonth();
                     $contracts = $customer->contracts->whereIn('monthly_deduction', [$amount, $contract_data['amount']]);
@@ -192,7 +192,6 @@ class StatementController extends Controller
                             ->whereDoesntHave('payments', function($q) {
                                 $q->where('month', Carbon::parse(request('month')));
                             })->get();
-
                     }
             
                     if ($contracts->count()) {
@@ -221,20 +220,20 @@ class StatementController extends Controller
                 }
             }
             
-
             $statement->update(['total_price' => $total_price]);
             DB::commit();
-
+    
             if ($errors->isNotEmpty()) {
                 return redirect()->back()->withErrors($errors);
             }
-
+    
             return redirect()->back()->with('success', 'تم استيراد العقود بنجاح.');
         } catch (\Exception $e) {
             DB::rollback();
             return redirect()->back()->withErrors(['error' => 'حدث خطأ أثناء الاستيراد: ' . $e->getMessage()]);
         }
     }
+    
 
 
 
