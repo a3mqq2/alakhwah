@@ -169,7 +169,7 @@ class StatementController extends Controller
                 }
 
                 if($index==7) {
-                    dd(floatval($contract_data));
+                    dd($contract_data['amount'], floatval($contract_data['amount']));
                 }
 
                 $amount = floatval($contract_data['amount']) - 5;
