@@ -135,98 +135,98 @@ class StatementController extends Controller
 
 
     public function store_excel(Request $request)
-    {
-        $request->validate([
-            "contracts_file" => "required|file|mimes:xlsx,xls",
-            "bank_id" => "required",
-            "month" => "required",
-        ], [
-            'contracts_file.required' => 'يجب اختيار ملف Excel يحتوي على العقود.',
-            'contracts_file.mimes' => 'يجب أن يكون الملف من نوع Excel (xls, xlsx).',
-            'bank_id.required' => 'يجب اختيار المصرف.',
-            'month.required' => 'يجب اختيار الشهر.'
-        ]);
+{
+    $request->validate([
+        "contracts_file" => "required|file|mimes:xlsx,xls",
+        "bank_id" => "required",
+        "month" => "required",
+    ], [
+        'contracts_file.required' => 'يجب اختيار ملف Excel يحتوي على العقود.',
+        'contracts_file.mimes' => 'يجب أن يكون الملف من نوع Excel (xls, xlsx).',
+        'bank_id.required' => 'يجب اختيار المصرف.',
+        'month.required' => 'يجب اختيار الشهر.'
+    ]);
 
-        try {
-            DB::beginTransaction();
-            $errors = new MessageBag();
-            $statement = new Statement();
-            $statement->month = Carbon::parse($request->month);
-            $statement->total_price = 0;
-            $statement->notes = $request->notes;
-            $statement->bank_id = $request->bank_id;
-            $statement->save();
-            $total_price = 0;
+    try {
+        DB::beginTransaction();
+        $errors = new MessageBag();
+        $statement = new Statement();
+        $statement->month = Carbon::parse($request->month);
+        $statement->total_price = 0;
+        $statement->notes = $request->notes;
+        $statement->bank_id = $request->bank_id;
+        $statement->save();
+        $total_price = 0;
 
-            $contractsData = Excel::toArray(new ContractsImport, $request->file('contracts_file'));
+        $contractsData = Excel::toArray(new ContractsImport, $request->file('contracts_file'));
 
-            foreach ($contractsData[0] as $index => $contract_data) {
-                $index = $index + 1;
+        foreach ($contractsData[0] as $index => $contract_data) {
+            $index = $index + 1;
 
-                // Filter out rows where bank_number or amount is missing
-                if (empty($contract_data['bank_number']) || empty($contract_data['amount'])) {
-                    continue; // Skip this iteration and move to the next row
-                }
+            // Filter out rows where bank_number or amount is missing
+            if (empty($contract_data['bank_number']) || empty($contract_data['amount'])) {
+                continue; // Skip this iteration and move to the next row
+            }
 
-                $amount = $contract_data['amount'] - 5;
-                $total_price += $amount;
+            $amount = $contract_data['amount'] - 5;
+            $total_price += $amount;
 
-                $customer = Customer::where('bank_number', 'like', '%' . $contract_data['bank_number'] . '%')->first();
+            $customer = Customer::where('bank_number', 'like', '%' . $contract_data['bank_number'] . '%')->first();
 
-                if (!$customer) {
-                    $errors->add('contract_'.$index, "لم يتم العثور على رقم الحساب في الصف رقم " . $index . ' رقم الحساب :  ' . $contract_data['bank_number'] . ' القيمة :  ' . $contract_data['amount']);
+            if (!$customer) {
+                $errors->add('contract_'.$index, "لم يتم العثور على رقم الحساب في الصف رقم " . $index . ' رقم الحساب :  ' . $contract_data['bank_number'] . ' القيمة :  ' . $contract_data['amount']);
+            } else {
+                $targetMonth = Carbon::parse($request->month)->startOfMonth();
+                $contracts = $customer->contracts->whereIn('monthly_deduction', [$amount, $contract_data['amount']]);
+
+                if (!$contracts->count()) {
+                    $errors->add('contract_'.$index, "لم يتم العثور على العقد المربوط بالحساب في الصف رقم " . $index);
                 } else {
-                    $targetMonth = Carbon::parse($request->month)->startOfMonth();
-                    $contracts = $customer->contracts->whereIn('monthly_deduction', [$amount, $contract_data['amount']]);
+                    $contracts = $customer->contracts()->whereIn('monthly_deduction', [$amount, $contract_data['amount']])
+                        ->whereDoesntHave('payments', function($q) {
+                            $q->where('month', Carbon::parse(request('month')));
+                        })->get();
+                }
 
-                    if (!$contracts->count()) {
-                        $errors->add('contract_'.$index, "لم يتم العثور على العقد المربوط بالحساب في الصف رقم " . $index);
+                if ($contracts->count()) {
+                    $contract = $contracts->first();
+
+                    $checkPayment = $contract->payments()->whereYear('month', Carbon::parse($request->month))->whereMonth('month', Carbon::parse($request->month))->get();
+                    if ($checkPayment->count()) {
+                        $errors->add('contract_'.$index, "تم الدفع المسبق للعقد التابع للصف رقم : " . $index);
                     } else {
-                        $contracts = $customer->contracts()->whereIn('monthly_deduction', [$amount, $contract_data['amount']])
-                            ->whereDoesntHave('payments', function($q) {
-                                $q->where('month', Carbon::parse(request('month')));
-                            })->get();
-                    }
+                        $contract->decrement('due', $contract->monthly_deduction);
+                        $contract->increment('paid', $contract->monthly_deduction);
 
-                    if ($contracts->count()) {
-                        $contract = $contracts->first();
+                        $payment = new Payment();
+                        $payment->contract_id = $contract->id;
+                        $payment->customer_id = $contract->customer_id;
+                        $payment->month = Carbon::parse($request->month);
+                        $payment->paid = $contract->paid;
+                        $payment->due = $contract->due;
+                        $payment->amount = $contract->monthly_deduction;
+                        $payment->statement_id = $statement->id;
+                        $payment->save();
 
-                        $checkPayment = $contract->payments()->whereYear('month', Carbon::parse($request->month))->whereMonth('month', Carbon::parse($request->month))->get();
-                        if ($checkPayment->count()) {
-                            $errors->add('contract_'.$index, "تم الدفع المسبق للعقد التابع للصف رقم : " . $index);
-                        } else {
-                            $contract->decrement('due', $contract->monthly_deduction);
-                            $contract->increment('paid', $contract->monthly_deduction);
-
-                            $payment = new Payment();
-                            $payment->contract_id = $contract->id;
-                            $payment->customer_id = $contract->customer_id;
-                            $payment->month = Carbon::parse($request->month);
-                            $payment->paid = $contract->paid;
-                            $payment->due = $contract->due;
-                            $payment->amount = $contract->monthly_deduction;
-                            $payment->statement_id = $statement->id;
-                            $payment->save();
-
-                            $contract->save();
-                        }
+                        $contract->save();
                     }
                 }
             }
-
-            $statement->update(['total_price' => $total_price]);
-            DB::commit();
-
-            if ($errors->isNotEmpty()) {
-                return redirect()->back()->withErrors($errors);
-            }
-
-            return redirect()->back()->with('success', 'تم استيراد العقود بنجاح.');
-        } catch (\Exception $e) {
-            DB::rollback();
-            return redirect()->back()->withErrors(['error' => 'حدث خطأ أثناء الاستيراد: ' . $e->getMessage()]);
         }
+
+        $statement->update(['total_price' => $total_price]);
+        DB::commit();
+
+        if ($errors->isNotEmpty()) {
+            return redirect()->back()->withErrors($errors);
+        }
+
+        return redirect()->back()->with('success', 'تم استيراد العقود بنجاح.');
+    } catch (\Exception $e) {
+        DB::rollback();
+        return redirect()->back()->withErrors(['error' => 'حدث خطأ أثناء الاستيراد: ' . $e->getMessage()]);
     }
+}
 
 
     /**
