@@ -165,15 +165,12 @@ class StatementController extends Controller
                 $amount = $contract_data['amount'] - 5;
                 $total_price += $amount;
                 
-                if($index == 29) {
-                $customer = Customer::where('bank_number', '118010993175012')->first();
-                    dd($customer);
-                }
+             
 
                 $customer = Customer::where('bank_number', 'like', '%' . $contract_data['bank_number'] . '%')->first();
 
                 if (!$customer) {
-                    $errors->add('contract_'.$index, "لم يتم العثور على رقم الحساب في الصف رقم " . $index);
+                    $errors->add('contract_'.$index, "لم يتم العثور على رقم الحساب في الصف رقم " . $index . ' رقم الحساب :  ' . $contract_data['bank_number'] . ' القيمة :  ' . $contract_data['amount']);
                 } else {
                     $targetMonth = Carbon::parse($request->month)->startOfMonth();
                     $contracts = $customer->contracts->whereIn('monthly_deduction', [$amount, $contract_data['amount']]);
