@@ -60,14 +60,14 @@ class StatementController extends Controller
             $statement->bank_id = $request->bank_id;
             $statement->save();
             $total_price = 0;
+
+            dd(json_decode($request->contracts));
             foreach(json_decode($request->contracts) as $index=>$contract_data) {
                 $index = $index+1;
                 $amount = $contract_data->amount - 5;
                 $total_price += $amount;
                 $customer = Customer::where('bank_number', $contract_data->bank_number)->first();
-                if($index==11) {
-                    dd($customer->contracts);
-                }
+                
                 if(!$customer) {
                     $errors[] = "لم يتم العثور على رقم الحساب في الصف رقم " . $index;
                 } else {
