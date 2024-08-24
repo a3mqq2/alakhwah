@@ -171,9 +171,6 @@ class StatementController extends Controller
                 // Remove any commas from the amount before converting to float
                 $cleaned_amount = str_replace(',', '', $contract_data['amount']);
                 
-                if($index == 7) {
-                    dd($contract_data['amount'], floatval($cleaned_amount));
-                }
             
                 $amount = floatval($cleaned_amount) - 5;
                 $total_price += $amount;
