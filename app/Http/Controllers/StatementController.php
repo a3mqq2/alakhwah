@@ -242,7 +242,7 @@ class StatementController extends Controller
                 return redirect()->back()->withErrors($errors);
             }
     
-            return redirect()->back()->with('success', 'تم استيراد العقود بنجاح.');
+            return redirect()->back()->with('success', ['تم استيراد العقود بنجاح.']);
         } catch (\Exception $e) {
             DB::rollback();
             return redirect()->back()->withErrors(['error' => 'حدث خطأ أثناء الاستيراد: ' . $e->getMessage()]);
