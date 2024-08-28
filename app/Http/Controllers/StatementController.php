@@ -147,7 +147,7 @@ class StatementController extends Controller
             'bank_id.required' => 'يجب اختيار المصرف.',
             'month.required' => 'يجب اختيار الشهر.'
         ]);
-
+    
         try {
             DB::beginTransaction();
             $errors = new MessageBag();
@@ -158,39 +158,43 @@ class StatementController extends Controller
             $statement->bank_id = $request->bank_id;
             $statement->save();
             $total_price = 0;
-
+    
             $contractsData = Excel::toArray(new ContractsImport, $request->file('contracts_file'));
-
+    
             // تقسيم البيانات إلى مجموعات من 30 صفًا
             $chunks = array_chunk($contractsData[0], 30);
             $groupNumber = 1;
-
+    
             foreach ($chunks as $chunk) {
-                foreach ($chunk as $index => $contract_data) {
-                    $rowIndex = ($groupNumber - 1) * 30 + $index + 1;
-
+                $groupIndex = 1; // إعادة تعيين الـ index لكل مجموعة جديدة
+    
+                foreach ($chunk as $contract_data) {
+                    // رقم الصف داخل المجموعة
+                    $rowIndex = $groupIndex;
+    
                     // Filter out rows where bank_number or amount is missing
                     if (empty($contract_data['bank_number']) || empty($contract_data['amount'])) {
+                        $groupIndex++;
                         continue; // Skip this iteration and move to the next row
                     }
-
+    
                     // Pad the bank_number with leading zeros if it's less than 15 digits
                     $bank_number = str_pad($contract_data['bank_number'], 15, '0', STR_PAD_LEFT);
-
+    
                     // Remove any commas from the amount before converting to float
                     $cleaned_amount = str_replace(',', '', $contract_data['amount']);
-
+    
                     $amount = floatval($cleaned_amount) - 5;
                     $total_price += $amount;
-
+    
                     $customer = Customer::where('bank_number', $bank_number)->first();
-
+    
                     if (!$customer) {
                         $errors->add('contract_' . $rowIndex, "لم يتم العثور على رقم الحساب في الصف رقم " . $rowIndex . ' (المجموعة ' . $groupNumber . ') رقم الحساب :  ' . $bank_number . ' القيمة :  ' . $contract_data['amount']);
                     } else {
                         $targetMonth = Carbon::parse($request->month)->startOfMonth();
                         $contracts = $customer->contracts->whereIn('monthly_deduction', [$amount, $contract_data['amount']]);
-
+    
                         if (!$contracts->count()) {
                             $errors->add('contract_' . $rowIndex, "لم يتم العثور على العقد المربوط بالحساب في الصف رقم " . $rowIndex . ' (المجموعة ' . $groupNumber . ') رقم الحساب : ' . $contract_data['bank_number'] . ' القيمة  : ' . $contract_data['amount']);
                         } else {
@@ -199,17 +203,17 @@ class StatementController extends Controller
                                     $q->where('month', Carbon::parse(request('month')));
                                 })->get();
                         }
-
+    
                         if ($contracts->count()) {
                             $contract = $contracts->first();
-
+    
                             $checkPayment = $contract->payments()->whereYear('month', Carbon::parse($request->month))->whereMonth('month', Carbon::parse($request->month))->get();
                             if ($checkPayment->count()) {
                                 $errors->add('contract_' . $rowIndex, "تم الدفع المسبق للعقد التابع للصف رقم : " . $rowIndex . ' (المجموعة ' . $groupNumber . ')');
                             } else {
                                 $contract->decrement('due', $contract->monthly_deduction);
                                 $contract->increment('paid', $contract->monthly_deduction);
-
+    
                                 $payment = new Payment();
                                 $payment->contract_id = $contract->id;
                                 $payment->customer_id = $contract->customer_id;
@@ -219,29 +223,32 @@ class StatementController extends Controller
                                 $payment->amount = $contract->monthly_deduction;
                                 $payment->statement_id = $statement->id;
                                 $payment->save();
-
+    
                                 $contract->save();
                             }
                         }
                     }
+    
+                    $groupIndex++; // Increment the index within the group
                 }
-
+    
                 $groupNumber++; // Increment group number for the next chunk
             }
-
+    
             $statement->update(['total_price' => $total_price]);
             DB::commit();
-
+    
             if ($errors->isNotEmpty()) {
                 return redirect()->back()->withErrors($errors);
             }
-
+    
             return redirect()->back()->with('success', 'تم استيراد العقود بنجاح.');
         } catch (\Exception $e) {
             DB::rollback();
             return redirect()->back()->withErrors(['error' => 'حدث خطأ أثناء الاستيراد: ' . $e->getMessage()]);
         }
     }
+    
 
     
 
