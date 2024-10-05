@@ -12,6 +12,12 @@
             <div class="row">
                 <div class="col-md-3">
                     <div class="form-group">
+                        <label for="id"> رقم العقد :</label>
+                        <input type="text" value="{{ request('id') }}" class="form-control" name="id" id="id">
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="form-group">
                         <label for="description">وصف العقد:</label>
                         <input type="text" value="{{ request('description') }}" class="form-control" name="description" id="description">
                     </div>

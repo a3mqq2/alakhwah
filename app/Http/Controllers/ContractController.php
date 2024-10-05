@@ -41,6 +41,11 @@ class ContractController extends Controller
             $query->where('contract_status', $request->contract_status);
         }
 
+
+        if($request->filled('id')) {
+            $query->where('id', $request->id);
+        }
+
         $contracts = $query->orderByDesc('id')->paginate(12);
     
         return view('contracts.index', compact('contracts'));
