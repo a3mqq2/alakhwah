@@ -7,12 +7,14 @@ use App\Models\Bank;
 use App\Models\Payment;
 use App\Models\Contract;
 use App\Models\Customer;
+use Barryvdh\DomPDF\PDF;
 use App\Models\Statement;
 use Illuminate\Http\Request;
 use App\Imports\ContractsImport;
+use Barryvdh\DomPDF\Facade\Pdf as FacadePdf;
 use Illuminate\Support\Facades\DB;
-use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Support\MessageBag;
+use Maatwebsite\Excel\Facades\Excel;
 
 class StatementController extends Controller
 {
@@ -279,4 +281,45 @@ class StatementController extends Controller
     }
 
  
+
+    public function generatePdf(Request $request)
+    {
+        // Retrieve the bank and month parameters from the request
+        $month = $request->input('month');
+        $bank_id = $request->input('bankName'); // Assuming the bank ID is passed as 'bankName'
+
+        // Calculate the start and end of the month
+        $startOfMonth = Carbon::parse($month)->startOfMonth();
+        $endOfMonth = Carbon::parse($month)->endOfMonth();
+
+        // Fetch the contracts based on the bank ID and month
+        $contracts = Contract::with('customer', 'payments')
+            ->where('bank_id', $bank_id)
+            ->where('contract_status', "ساري")
+            ->where(function ($query) use ($startOfMonth, $endOfMonth) {
+                $query->where('start_month', '<=', $endOfMonth)
+                      ->where('end_month', '>=', $startOfMonth);
+            })
+            ->withCount(['payments as payments_count'])
+            ->orderBy(DB::raw('payments_count = 0'), 'desc') // Orders by contracts without payments first
+            ->orderBy('start_month') // or 'end_month', or any other column you want to order by
+            ->get();
+
+        // Check if each contract has a payment for the given month
+        $contracts->each(function ($contract) use ($month) {
+            $contract->is_payment = $contract->checkIfPayment($month);
+        });
+
+        // Prepare data for the PDF view
+        $data = [
+            'bankName' => $request->input('bankName'),
+            'month' => $month,
+            'contracts' => $contracts, // Pass the contracts to the view
+            'today' => now()->format('Y-m-d'),
+        ];
+
+        // Generate the PDF using the prepared data
+        $pdf = FacadePdf::loadView('pdf_template', $data);
+        return $pdf->download('settlements.pdf');
+    }
 }

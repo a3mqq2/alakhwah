@@ -79,11 +79,11 @@
                                 <div class="mt-3">
                                     <a href="{{ route('contracts.show', $contract->id) }}" class="btn btn-info btn-sm"><i class="fe fe-eye"></i> عرض </a>
                                     <a href="{{ route('contracts.print', $contract->id) }}" class="btn btn-secondary btn-sm"><i class="fe fe-print"></i> طباعة   </a>
-                                    {{-- <form action="{{ route('contracts.destroy', $contract->id) }}" method="POST" class="d-inline">
+                                    <form action="{{ route('contracts.destroy', $contract->id) }}" method="POST" class="d-inline">
                                         @csrf
                                         @method('DELETE')
                                         <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('هل أنت متأكد؟')"><i class="fe fe-trash"></i> حذف </button>
-                                    </form> --}}
+                                    </form>
                                 </div>
                             </div>
                         </div>

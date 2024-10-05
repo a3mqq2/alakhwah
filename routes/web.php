@@ -47,7 +47,7 @@ Route::middleware(['auth'])->group(function() {
     Route::resource('/banks', BankController::class);
     Route::resource('/customers', CustomerController::class);
     Route::resource('/payments', PaymentController::class);
-    
+    Route::get('/export-pdf', [StatementController::class, 'generatePdf']);
     Route::post('/contracts/import_excel', [StatementController::class, 'store_excel'])->name('contracts.store_excel');
     Route::get('/reports/rating', [ReportController::class, 'rating'])->name('reports.rating');
     Route::get('/reports/index', [ReportController::class, 'index'])->name('reports.index');
