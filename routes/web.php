@@ -51,7 +51,7 @@ Route::middleware(['auth'])->group(function() {
     Route::post('/contracts/import_excel', [StatementController::class, 'store_excel'])->name('contracts.store_excel');
     Route::get('/reports/rating', [ReportController::class, 'rating'])->name('reports.rating');
     Route::get('/reports/index', [ReportController::class, 'index'])->name('reports.index');
-    Route::get('/reports/payments', [ReportController::class, 'payments'])->name('reports.payments');
+    Route::get('/reports/payments', [ReportController::class, 'getUnpaidContracts'])->name('reports.payments');
     Route::get('/statements/{statement}/print', [StatementController::class, 'print'])->name('statements.print');
     Route::resource('/statements', StatementController::class);
 });

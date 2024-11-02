@@ -55,17 +55,18 @@ class Contract extends Model
     }
 
 
-    public function getMonthsArrayAttribute()
+    public function getMonthsArray()
     {
         $fromMonth = Carbon::parse($this->start_month);
-        $toMonth = Carbon::parse('2024-03');
+        $toMonth = Carbon::parse($this->end_month);
 
-        $months = new Collection();
+        $months = collect();
         for ($date = $fromMonth; $date->lte($toMonth); $date->addMonth()) {
             $months->push($date->format('Y-m'));
         }
 
         return $months->toArray();
     }
+
     
 }

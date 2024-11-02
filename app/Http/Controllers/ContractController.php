@@ -162,7 +162,8 @@ class ContractController extends Controller
     public function destroy(string $id)
     {
         $contract = Contract::findOrFail($id);
-        $contract->delete();
+        $contract->contract_status = "ملغي";
+        $contract->save();
 
         return redirect()->route('contracts.index')->with('success', ['تم حذف العقد بنجاح.']);
     }

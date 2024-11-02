@@ -102,6 +102,13 @@
                                 <span class="mt-4"><strong> ملاحظات : </strong> {{ $contract->notes }}  </span> <br>
                                     
                                 <a href="{{route('contracts.show', $contract)}}" class="btn btn-primary mt-3 text-light btn-sm"> عرض العقد <i class="fe fe-eye"></i></a>
+                                @if ($contract->contract_status != "ملغي")
+                                        <form action="{{ route('contracts.destroy', $contract->id) }}" method="POST" class="d-inline">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('هل أنت متأكد؟')"><i class="fe fe-trash"></i> إلغاء العقد </button>
+                                        </form>
+                                    @endif
                             </p>
                         </div>
                         <hr>

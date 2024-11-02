@@ -5,6 +5,18 @@
 @endsection
 
 @section('content')
+<div class="row mb-3">
+    <div class="col-md-12">
+        <a href="{{ route('contracts.print', $contract->id) }}" class="btn btn-secondary btn-sm"><i class="fe fe-print"></i> طباعة   </a>
+        @if ($contract->contract_status != "ملغي")
+        <form action="{{ route('contracts.destroy', $contract->id) }}" method="POST" class="d-inline">
+            @csrf
+            @method('DELETE')
+            <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('هل أنت متأكد؟')"><i class="fe fe-trash"></i> إلغاء العقد </button>
+        </form>
+    @endif
+    </div>
+</div>
     <div class="card">
         <div class="card-header bg-primary text-light">تفاصيل العقد</div>
         <div class="card-body">
