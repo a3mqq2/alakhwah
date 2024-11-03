@@ -111,7 +111,7 @@ class ReportController extends Controller
                     ->where('paid', true)
                     ->exists();
                     
-                   dd($isPaid, $contract->payments, $contract->getMonthsArray());
+                   dd($isPaid, $contract->payments()->where('month', '2022-09-01'), $contract->getMonthsArray());
 
 
                     if (!$isPaid) {
