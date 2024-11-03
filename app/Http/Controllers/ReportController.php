@@ -102,7 +102,6 @@ class ReportController extends Controller
                         ->get();
     
         $unpaidPayments = [];
-                        
         foreach ($contracts as $contract) {
             foreach ($contract->getMonthsArray() as $month) {
                 $monthDate = Carbon::parse($month);
@@ -112,6 +111,9 @@ class ReportController extends Controller
                                                    ->where('paid', true)
                                                    ->exists();
                     
+                   dd($isPaid, $contract->payments, $contract->getMonthsArray());
+
+
                     if (!$isPaid) {
                         $unpaidPayments[] = [
                             'id' => $contract->id,
