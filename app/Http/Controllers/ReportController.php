@@ -106,10 +106,10 @@ class ReportController extends Controller
             foreach ($contract->getMonthsArray() as $month) {
                 $monthDate = Carbon::parse($month);
                 if ($monthDate->between($startDate, $endDate)) {
-                    $isPaid = $contract->payments()->whereMonth('month', $monthDate->month)
-                                                   ->whereYear('month', $monthDate->year)
-                                                   ->where('paid', true)
-                                                   ->exists();
+                    $isPaid = $contract->payments()
+                    ->whereDate('month', '=', $monthDate->format('Y-m-d')) // Match full date format
+                    ->where('paid', true)
+                    ->exists();
                     
                    dd($isPaid, $contract->payments, $contract->getMonthsArray());
 
