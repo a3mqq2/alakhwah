@@ -110,7 +110,6 @@ class ReportController extends Controller
                     ->whereDate('month', '=', $monthDate->format('Y-m-d')) // Match full date format
                     ->exists();
                     
-                   dd($isPaid, $contract->payments()->where('month', '2022-09-01'), $contract->getMonthsArray());
 
 
                     if (!$isPaid) {
