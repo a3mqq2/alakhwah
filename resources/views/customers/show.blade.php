@@ -106,9 +106,14 @@
                                         <form action="{{ route('contracts.destroy', $contract->id) }}" method="POST" class="d-inline">
                                             @csrf
                                             @method('DELETE')
-                                            <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('هل أنت متأكد؟')"><i class="fe fe-trash"></i> إلغاء العقد </button>
+                                            <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('هل أنت متأكد؟')"><i class="fe fe-times"></i> إلغاء العقد </button>
                                         </form>
-                                    @endif
+                                @endif
+                                <form action="{{ route('contracts.destroy', ['contract' => $contract->id, 'delete' => 1]) }}" method="POST" class="d-inline">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('هل أنت متأكد؟')"><i class="fe fe-trash"></i> حذف  </button>
+                                </form>
                             </p>
                         </div>
                         <hr>

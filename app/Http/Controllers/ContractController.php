@@ -159,12 +159,18 @@ class ContractController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
+    public function destroy(string $id,Request $request)
     {
         $contract = Contract::findOrFail($id);
-        $contract->contract_status = "ملغي";
-        $contract->save();
-
+        if($request->delete) 
+        {
+            $contract->delete();
+        } else {
+            $contract->contract_status = "ملغي";
+            $contract->save();
+    
+        }
+     
         return redirect()->route('contracts.index')->with('success', ['تم حذف العقد بنجاح.']);
     }
 

@@ -9,12 +9,17 @@
     <div class="col-md-12">
         <a href="{{ route('contracts.print', $contract->id) }}" class="btn btn-secondary btn-sm"><i class="fe fe-print"></i> طباعة   </a>
         @if ($contract->contract_status != "ملغي")
-        <form action="{{ route('contracts.destroy', $contract->id) }}" method="POST" class="d-inline">
+            <form action="{{ route('contracts.destroy', $contract->id) }}" method="POST" class="d-inline">
+                @csrf
+                @method('DELETE')
+                <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('هل أنت متأكد؟')"><i class="fe fe-times"></i> إلغاء العقد </button>
+            </form>
+        @endif
+        <form action="{{ route('contracts.destroy', ['contract' => $contract->id, 'delete' => 1]) }}" method="POST" class="d-inline">
             @csrf
             @method('DELETE')
-            <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('هل أنت متأكد؟')"><i class="fe fe-trash"></i> إلغاء العقد </button>
+            <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('هل أنت متأكد؟')"><i class="fe fe-trash"></i> حذف  </button>
         </form>
-    @endif
     </div>
 </div>
     <div class="card">
