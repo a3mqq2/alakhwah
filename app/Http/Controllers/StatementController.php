@@ -160,9 +160,9 @@ class StatementController extends Controller
             $statement->bank_id = $request->bank_id;
             $statement->save();
             $total_price = 0;
-    
+
             $contractsData = Excel::toArray(new ContractsImport, $request->file('contracts_file'));
-    
+            
             // تقسيم البيانات إلى مجموعات من 30 صفًا
             $chunks = array_chunk($contractsData[0], 30);
             $groupNumber = 1;
@@ -172,19 +172,24 @@ class StatementController extends Controller
     
                 foreach ($chunk as $contract_data) {
                     // رقم الصف داخل المجموعة
+
                     $rowIndex = $groupIndex;
     
                     // Filter out rows where bank_number or amount is missing
-                    if (empty($contract_data['bank_number']) || empty($contract_data['amount'])) {
+
+
+                    if (empty($contract_data[0]) || empty($contract_data[1]) || empty($contract_data[3]) || empty($contract_data[5]) || empty($contract_data[13]) || empty($contract_data[11]) || $contract_data[0] == "صافي القسط"  ) {
                         $groupIndex++;
                         continue; // Skip this iteration and move to the next row
                     }
-    
+
+
+
                     // Pad the bank_number with leading zeros if it's less than 15 digits
-                    $bank_number = str_pad($contract_data['bank_number'], 15, '0', STR_PAD_LEFT);
+                    $bank_number = str_pad($contract_data[5], 15, '0', STR_PAD_LEFT);
     
                     // Remove any commas from the amount before converting to float
-                    $cleaned_amount = str_replace(',', '', $contract_data['amount']);
+                    $cleaned_amount = str_replace(',', '', $contract_data[0]);
     
                     $amount = floatval($cleaned_amount) - 5;
                     $total_price += $amount;
@@ -192,15 +197,15 @@ class StatementController extends Controller
                     $customer = Customer::where('bank_number', $bank_number)->first();
     
                     if (!$customer) {
-                        $errors->add('contract_' . $rowIndex, "لم يتم العثور على رقم الحساب في الصف رقم " . $rowIndex . ' (المجموعة ' . $groupNumber . ') رقم الحساب :  ' . $bank_number . ' القيمة :  ' . $contract_data['amount']);
+                        $errors->add('contract_' . $rowIndex, "لم يتم العثور على رقم الحساب في الصف رقم " . $rowIndex . ' (المجموعة ' . $groupNumber . ') رقم الحساب :  ' . $bank_number . ' القيمة :  ' . $contract_data[0]  . ' الاسم : ' . $contract_data[13]);
                     } else {
                         $targetMonth = Carbon::parse($request->month)->startOfMonth();
-                        $contracts = $customer->contracts->whereIn('monthly_deduction', [$amount, $contract_data['amount']]);
+                        $contracts = $customer->contracts->whereIn('monthly_deduction', [$amount, $contract_data[0]]);
     
                         if (!$contracts->count()) {
-                            $errors->add('contract_' . $rowIndex, "لم يتم العثور على العقد المربوط بالحساب في الصف رقم " . $rowIndex . ' (المجموعة ' . $groupNumber . ') رقم الحساب : ' . $contract_data['bank_number'] . ' القيمة  : ' . $contract_data['amount']);
+                            $errors->add('contract_' . $rowIndex, "لم يتم العثور على العقد المربوط بالحساب في الصف رقم " . $rowIndex . ' (المجموعة ' . $groupNumber . ') رقم الحساب : ' . $contract_data[5] . ' القيمة  : ' . $contract_data[0] . ' الاسم : ' . $contract_data[13]);
                         } else {
-                            $contracts = $customer->contracts()->whereIn('monthly_deduction', [$amount, $contract_data['amount']])
+                            $contracts = $customer->contracts()->whereIn('monthly_deduction', [$amount, $contract_data[0]])
                                 ->whereDoesntHave('payments', function ($q) {
                                     $q->where('month', Carbon::parse(request('month')));
                                 })->get();

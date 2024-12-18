@@ -13,6 +13,7 @@ class ContractsImport implements ToCollection, WithHeadingRow
     public function collection(Collection $rows)
     {
         foreach ($rows as $row) {
+            dd($row);
             // Process each row, treating 'bank_number' as a string
             $contractData = [
                 'amount' => $row['amount'],
