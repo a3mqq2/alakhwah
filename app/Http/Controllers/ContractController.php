@@ -63,34 +63,54 @@ class ContractController extends Controller
     /**
      * Store a newly created resource in storage.
      */
+
+
     public function store(Request $request)
     {
         $request->validate([
             'customer_id' => 'required|exists:customers,id',
             'installments' => 'required|numeric|min:1',
-            'monthly_deduction' => 'required|numeric|min:0',
+            'monthly_deduction' => 'required|numeric|min:1',
             'description' => 'nullable|string|max:255',
             'start_month' => 'required|date_format:Y-m',
             'notes' => 'nullable|string|max:255',
         ]);
-
-        $status = '';
-        $months_count = round($request->installments/$request->monthly_deduction);
-        $end_month = Carbon::parse($request->start_month)->addMonths($months_count);
-        if(Carbon::parse($request->end_month)->month < Carbon::now()->month) {
-            $status = "مكتمل";
-        } else {
-            $status = "ساري";
+    
+        // التحقق من أن القسمة لا تحتوي على كسر
+        if ($request->installments % $request->monthly_deduction !== 0) {
+            return redirect()->back()->withErrors([
+                'installments' => 'يجب أن يكون ناتج قسمة قيمة الأقساط على قيمة الاستقطاع الشهري عددًا صحيحًا.'
+            ]);
         }
+    
+        // حساب عدد الأشهر
+        $months_count = $request->installments / $request->monthly_deduction; 
+    
+        // التحقق من أن عدد الأشهر لا يقل عن 1
+        if ($months_count < 1) {
+            return redirect()->back()->withErrors([
+                'installments' => 'عدد الأشهر المحسوب غير صحيح، تحقق من قيمة الأقساط وقيمة الاستقطاع الشهري.'
+            ]);
+        }
+    
+        // حساب تاريخ نهاية العقد
+        $end_month = Carbon::parse($request->start_month)->addMonths($months_count - 1); 
+    
+        // تحديد حالة العقد بناءً على تاريخ النهاية
+        $status = $end_month->lessThan(Carbon::now()) ? "مكتمل" : "ساري";
+    
+        // الحصول على بيانات العميل
         $customer = Customer::findOrFail($request->customer_id);
+    
+        // إنشاء العقد
         $contract = Contract::create([
             'customer_id' => $request->input('customer_id'),
             'bank_id' => $customer->bank_id,
             'installments' => $request->input('installments'),
             'monthly_deduction' => $request->input('monthly_deduction'),
             'description' => $request->input('description'),
-            'start_month' => $request->input('start_month'),
-            'end_month' => $end_month,
+            'start_month' => Carbon::parse($request->start_month)->format('Y-m-d'),
+            'end_month' => $end_month->format('Y-m-d'),
             'months_count' => $months_count,
             'contract_status' => $status,
             'cancellation_reason' => $request->input('cancellation_reason'),
@@ -98,9 +118,11 @@ class ContractController extends Controller
             'paid' => 0,
             'due' => $request->installments,
         ]);
-
-        return redirect()->route('contracts.index', ['id' => $contract->id])->with('success', [ 'تم إنشاء العقد بنجاح.']);
+    
+        return redirect()->route('contracts.index', ['id' => $contract->id])
+            ->with('success', ['تم إنشاء العقد بنجاح.']);
     }
+    
 
     /**
      * Display the specified resource.
@@ -123,37 +145,61 @@ class ContractController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    
+    public function update(Request $request, $id)
     {
         $request->validate([
             'customer_id' => 'required|exists:customers,id',
             'installments' => 'required|numeric|min:1',
-            'monthly_deduction' => 'required|numeric|min:0',
+            'monthly_deduction' => 'required|numeric|min:1',
             'description' => 'nullable|string|max:255',
             'start_month' => 'required|date_format:Y-m',
-            'end_month' => 'required|date_format:Y-m|after:start_month',
-            'cancellation_reason' => 'nullable|required_if:contract_status,cancelled|string|max:255',
             'notes' => 'nullable|string|max:255',
-            'months_count' => 'required|numeric|min:1',
         ]);
 
+        // العثور على العقد المطلوب
         $contract = Contract::findOrFail($id);
-        $customer = Customer::findOrFail($request->customer_id);
+
+        // التحقق من أن الأقساط تقبل القسمة على الاستقطاع الشهري بدون كسور
+        if ($request->installments % $request->monthly_deduction !== 0) {
+            return redirect()->back()->withErrors([
+                'installments' => 'يجب أن يكون ناتج قسمة قيمة الأقساط على قيمة الاستقطاع الشهري عددًا صحيحًا.'
+            ]);
+        }
+
+        // حساب عدد الأشهر
+        $months_count = $request->installments / $request->monthly_deduction; 
+
+        // التحقق من أن عدد الأشهر لا يقل عن 1
+        if ($months_count < 1) {
+            return redirect()->back()->withErrors([
+                'installments' => 'عدد الأشهر المحسوب غير صحيح، تحقق من قيمة الأقساط وقيمة الاستقطاع الشهري.'
+            ]);
+        }
+
+        // حساب تاريخ نهاية العقد بدقة
+        $end_month = Carbon::parse($request->start_month)->addMonths($months_count - 1); 
+
+        // تحديد حالة العقد بناءً على تاريخ النهاية
+        $status = $end_month->lessThan(Carbon::now()) ? "مكتمل" : "ساري";
+
+        // تحديث بيانات العقد
         $contract->update([
             'customer_id' => $request->input('customer_id'),
-            'bank_id' => $customer->bank_id,
             'installments' => $request->input('installments'),
             'monthly_deduction' => $request->input('monthly_deduction'),
             'description' => $request->input('description'),
             'start_month' => $request->input('start_month'),
-            'end_month' => $request->input('end_month'),
+            'end_month' => $end_month->format('Y-m'),
+            'months_count' => $months_count,
+            'contract_status' => $status,
             'cancellation_reason' => $request->input('cancellation_reason'),
             'notes' => $request->input('notes'),
-            'paid' => 0,
             'due' => $request->installments,
         ]);
 
-        return redirect()->route('contracts.index')->with('success', ['تم تحديث العقد بنجاح.']);
+        return redirect()->route('contracts.index', ['id' => $contract->id])
+            ->with('success', ['تم تحديث العقد بنجاح.']);
     }
 
     /**
