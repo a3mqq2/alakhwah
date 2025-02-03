@@ -29,6 +29,11 @@
                             <label for="">الى شهر</label>
                             <input type="month" required name="to_month" id="" class="form-control">
                         </div>
+
+                        <div class="col-md-12">
+                          <label for="">عرض المكتمل </label>
+                          <input type="checkbox" name="is_completed" value="1" id="">
+                        </div>
                         <div class="col-md-12 mt-4">
                             <button class="btn btn-primary text-light">عرض</button>
                         </div>

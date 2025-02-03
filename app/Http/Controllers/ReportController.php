@@ -89,9 +89,15 @@ class ReportController extends Controller
         $endDate = Carbon::parse($request->to_month);
         $bankId = $request->bank_id;
         $customerId = $request->customer_id;
+        $isCompleted = $request->has('is_completed');
     
         $contracts = Contract::where('contract_status', 'ساري')
-                        ->whereBetween('start_month', [$startDate, $endDate])
+                        ->when(!$isCompleted, function ($query) use ($startDate, $endDate) {
+                            $query->whereBetween('start_month', [$startDate, $endDate]);
+                        })
+                        ->when($isCompleted, function ($query) use ($endDate) {
+                            $query->where('end_month', '<=', $endDate); // جلب العقود التي انتهت قبل أو عند تاريخ النهاية
+                        })
                         ->when($bankId, function ($query) use ($bankId) {
                             $query->where('bank_id', $bankId);
                         })
@@ -107,11 +113,9 @@ class ReportController extends Controller
                 $monthDate = Carbon::parse($month);
                 if ($monthDate->between($startDate, $endDate)) {
                     $isPaid = $contract->payments()
-                    ->whereDate('month', '=', $monthDate->format('Y-m-d')) // Match full date format
-                    ->exists();
-                    
-
-
+                        ->whereDate('month', '=', $monthDate->format('Y-m-d')) // Match full date format
+                        ->exists();
+    
                     if (!$isPaid) {
                         $unpaidPayments[] = [
                             'id' => $contract->id,
@@ -127,13 +131,14 @@ class ReportController extends Controller
                 }
             }
         }
-
+    
         $unpaidPayments = collect($unpaidPayments);
         $totalDue = $unpaidPayments->sum('monthly_deduction');
         $totalPaid = $unpaidPayments->sum('paid');
         $totalRemaining = $unpaidPayments->sum('due');
-
+    
         return view('statements.print', compact('unpaidPayments', 'totalDue', 'totalPaid', 'totalRemaining'));
     }
+    
     
 }
