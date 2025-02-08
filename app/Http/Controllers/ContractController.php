@@ -121,7 +121,7 @@ class ContractController extends Controller
              // نخزّن تاريخ النهاية في آخر يوم من الشهر
              'end_month'         => $endMonthCarbon->format('Y-m-d'),
              'months_count'      => $months_count,
-             'contract_status'   => $status,
+             'contract_status'   => "ساري",
              'cancellation_reason' => $request->input('cancellation_reason'),
              'notes'             => $request->input('notes'),
              'paid'              => 0,
