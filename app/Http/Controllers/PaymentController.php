@@ -75,9 +75,11 @@ class PaymentController extends Controller
             $payment->save();
 
 
-            if($contract->paid >= $contract->installments) {
-                $contract->update(['status' => "مكتمل"]);
+            if($contract->due <= 0) {
+                $contract->update(['contract_status' => "مكتمل"]);
             }
+
+
 
             DB::commit();
             return response()->json([], 200);
