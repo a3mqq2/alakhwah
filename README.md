@@ -1,66 +1,45 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# 🏷️ مشروع “الإخوة” لإدارة مبيعات بنظام التقسيط
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+## 🌟 مقدمة
+مشروع “الإخوة” هو منظومة متكاملة لإدارة عمليات بيع المنتجات بنظام التقسيط داخل شركة أو مؤسسة. يهدف المشروع إلى تبسيط عملية إدارة العملاء، العقود، المدفوعات، والبنوك، بالإضافة إلى توليد تقارير دقيقة توضح الأقساط المستحقة والزبائن المتأخرين في السداد. تم تصميم هذا المشروع باستخدام Laravel وVue.js لضمان أداء عالٍ وتجربة مستخدم سلسة.
 
-## About Laravel
+---
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+## 📋 الميزات الرئيسية
+- **👥 إدارة العملاء (Clients)**  
+  - ➕ إضافة وتعديل وحذف بيانات العملاء (الاسم، العنوان، رقم الهاتف، إلخ).  
+  - 🔍 البحث المتقدم وتصنيف العملاء حسب الحالة أو المديونية.
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+- **📝 إدارة العقود (Contracts)**  
+  - ✍️ إنشاء عقود جديدة مرتبطة بمنتجات وتقسيط محدد (عدد الأقساط، قيمة القسط، تاريخ الانتهاء).  
+  - 🔗 ربط العقد بالعميل وتحديد تفاصيل المنتج (الوصف، السعر الإجمالي، نسبة الفائدة إذا وجدت).
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+- **💰 إدارة المدفوعات (Payments)**  
+  - 🏦 تسجيل دفعات الأقساط (جزئية أو كاملة) لكل عقد.  
+  - ⏱️ متابعة حالة كل قسط (مدفوع، متأخر، مستحق).  
+  - 🧮 توزيع المدفوعات على الأقساط بشكل أوتوماتيكي وإظهار الرصيد المتبقي.
 
-## Learning Laravel
+- **🏦 إدارة البنوك (Banks)**  
+  - ➕ إضافة وتعديل وحذف بيانات حسابات البنوك التي تتم عبرها عمليات التحصيل.  
+  - 🔗 ربط كل دفعة بحساب بنكي محدد لتسهيل عمليات المراجعة المالية.
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+- **📈 التقارير والإشعارات (Reports & Notifications)**  
+  - 📅 تقرير الأقساط الشهرية: يعرض إجمالي الأقساط المستحقة لكل شهر وترتيبها حسب الحالة.  
+  - 💳 تقرير العملاء المتأخرين: يحدد العملاء الذين لديهم أقساط متأخرة مع إمكانية تصدير البيانات 
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+- **📊 لوحة التحكم (Dashboard)**  
+  - 🏆 نظرة عامة على إجمالي المبيعات بالقسط، إجمالي المبالغ المستحقة، والأقساط المتأخرة.  
+  - 📈 رسوم بيانية توضح الاتجاهات الشهرية للمبيعات والتحصيل.
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains over 2000 video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+---
 
-## Laravel Sponsors
+## 🖥️ المتطلبات الأساسية
+1. **⚙️ بيئة الخادم (Server Requirements):**  
+   - PHP ≥ 8.0  
+   - MySQL ≥ 5.7 أو MariaDB  
+   - Composer  
+   - Node.js ≥ 14 و npm أو Yarn
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
-
-### Premium Partners
-
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[WebReinvent](https://webreinvent.com/)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Jump24](https://jump24.co.uk)**
-- **[Redberry](https://redberry.international/laravel/)**
-- **[Active Logic](https://activelogic.com)**
-- **[byte5](https://byte5.de)**
-- **[OP.GG](https://op.gg)**
-
-## Contributing
-
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
-
-## Code of Conduct
-
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
-
-## Security Vulnerabilities
-
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
-
-## License
-
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+2. **📦 المكتبات والإضافات:**  
+   - Laravel Framework ≥ 10.x  
+   - Vue.js ≥ 3.x  
